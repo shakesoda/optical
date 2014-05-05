@@ -1,0 +1,1 @@
+return GetLoop(GetUserPref("BGM"));
