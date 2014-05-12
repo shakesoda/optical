@@ -24,11 +24,11 @@ local function InfoBox(Width, Height)
 	}
 end
 
-function HasStats()
+local function HasStats()
 	return STATSMAN:GetPlayedStageStats(1) ~= nil
 end
 
-function GetStats(pn)
+local function GetStats(pn)
 	local stats = STATSMAN:GetPlayedStageStats(1)
 	if not stats then
 		return
@@ -37,17 +37,43 @@ function GetStats(pn)
 	return stats
 end
 
-function HasFullCombo(pn)
+local function HasFullCombo(pn)
 	if HasStats() then
 		return GetStats(pn):FullCombo()
 	end
 end
 
-function GradeString(pn)
+local function GradeString(pn)
 	if HasStats() then
 		return string.sub(GetStats(pn):GetGrade(),7)
 	end
 	return "Failed"
+end
+
+local function ChangeSpeed(amount, pn)
+	local state = GAMESTATE:GetPlayerState(pn);
+	local options = state:GetPlayerOptionsString("ModsLevel_Preferred");
+	local speed = (state:GetCurrentPlayerOptions():GetXMod() + amount) .. "x";
+
+	if speed == nil then
+		speed = "1x";
+	end
+
+	local XMod = state:GetCurrentPlayerOptions():GetXMod()
+	if amount > 0 and XMod > 6.0 then
+		speed = "1x";
+	end
+	if amount < 0 and XMod <= 1 then
+		speed = "6x";
+	end
+
+	-- ???
+	if GAMESTATE:GetPlayerState(pn):GetPlayerOptionsArray("ModsLevel_Preferred")[3] == nil or
+	   GAMESTATE:GetPlayerState(pn):GetPlayerOptionsArray("ModsLevel_Preferred")[3] == "" then
+		state:SetPlayerOptions("ModsLevel_Preferred", options .. "," .. speed .. ",default");
+	else
+		state:SetPlayerOptions("ModsLevel_Preferred", options .. "," .. speed);
+	end
 end
 
 local t = Def.ActorFrame {}
@@ -55,6 +81,28 @@ local t = Def.ActorFrame {}
 t[#t+1] = StandardDecorationFromFileOptional("DDRHeader","header")
 
 local songForStats = STATSMAN:GetAccumPlayedStageStats():GetPlayedSongs()
+
+-- Code handler
+t[#t+1] = LoadActor(THEME:GetPathS("", "Common Start")) .. {
+	InitCommand=cmd(stop),
+	CodeMessageCommand = function(self, params)
+		local codes = {
+			SpeedUp = function(screen, pn) ChangeSpeed(1, pn) end,
+			SpeedDown = function(screen, pn) ChangeSpeed(-1, pn) end,
+			SpeedHalfUp = function(screen, pn) ChangeSpeed(0.5, pn) end,
+			SpeedHalfDown = function(screen, pn) ChangeSpeed(-0.5, pn) end,
+			-- "SpeedQuarterUp" = function(screen, pn) ChangeSpeed(0.25, pn) end,
+			-- "SpeedQuarterDown" = function(screen, pn) ChangeSpeed(-0.25, pn) end,
+			OpenOptionsList = function(screen, pn)
+				screen:OpenOptionsList(pn)
+			end
+		}
+		if codes[params.Name] then
+			codes[params.Name](SCREENMAN:GetTopScreen(), params.PlayerNumber)
+			self:play()
+		end
+	end
+}
 
 t[#t+1] = Def.ActorFrame {
 	FOV=60,

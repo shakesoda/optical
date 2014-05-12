@@ -17,16 +17,10 @@ end
 
 function SetGameKeys()
 	local game = PREFSMAN:GetPreference("CurrentGame");
-	if game == "kb7" then
-		return "Key1,Key2,Key3,Key4,Key5,Key6,Start,Back"
-	elseif game == "beat" then
-		return "Key1,Key2,Key3,Key4,Key5,Key6,Key7,ScratchUp,ScratchDown,Start,Back"
-	elseif game == "popn" then
-		return "Key1,Key2,Key3,Key4,Key5,Key6,Key7,Key8,Key9,Start,Back"
-	elseif game == "pump" then
-		return "UpLeft,UpRight,DownLeft,DownRight,Start,Back"
+	if game == "pump" then
+		return "UpLeft,UpRight,DownLeft,DownRight,Center,Back,MenuLeft,MenuRight,MenuUp,MenuDown,MenuStart"
 	else
-		return "Left,Right,Start,Back"
+		return "Left,Right,Start,Back,MenuLeft,MenuRight,MenuUp,MenuDown,MenuStart"
 	end
 end
 
@@ -84,16 +78,16 @@ function Def.RoundedBox(Width, Height, Color)
 	assert(Height)
 	local corner = THEME:GetPathG("","_corner") -- graphic file
 	local DefaultColor = THEME:GetMetric("Common","BoxColor")
-	
+
 	-- Color is optional.
 	if not Color then Color = DefaultColor end
-	
+
 	--[[
 	How it's drawn:
 	  c----c
 	  OOOOOO
 	  c----c
-	
+
 	---- is 8px tall and Width-8 wide. y = (Height/2), flip the bit.
 	OOOO is Height-8px tall and Width wide.
 	c's x position is Width - 4, flip the bit if needed.

@@ -42,23 +42,11 @@ end
 
 local function Key(key)
 	if key == "Left" then
-		if GetGameMode("kb7") or GetGameMode("beat") then
-			ret = "Key2"
-		elseif GetGameMode("pump") then
-			ret = "DownLeft"
-		else
-			ret = "Left"
-		end
+		ret = IsGame("pump") and "DownLeft" or "Left"
 	elseif key == "Right" then
-		if GetGameMode("kb7") then
-			ret = "Key5"
-		elseif GetGameMode("pump") then
-			ret = "DownRight"
-		else
-			ret = "Right"
-		end
+		ret = IsGame("pump") and "DownRight" or "Right"
 	elseif key == "Start" then
-		ret = "Start"
+		ret = IsGame("pump") and "Center" or "Start"
 	end
 	return ret
 end
@@ -105,7 +93,7 @@ local function Items(self,params)
 	return ret
 end
 local t = Def.ActorFrame {
-	FOV=90;	
+	FOV=90;
 	InitCommand=cmd(sleep,0.2;queuecommand,"UnlockInput");
 	UnlockInputCommand=function(self)
 		lockedinput = false
